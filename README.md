@@ -38,3 +38,10 @@ Efficiency is measured by the **average steps taken per object placement**. Lowe
 ---
 
 This simulation explores the synergy between reactive and deliberative strategies in multi-agent systems, emphasizing efficiency and adaptability in dynamic environments.
+
+---
+
+## Links to Video and Unity Project  
+- **Video**: [Link](https://drive.google.com/file/d/1yfpKzJ3jPrWxiQpsySeExBUQF62C_zJy/view?usp=drive_link)  
+- **Unity Project**: [Link](https://drive.google.com/file/d/1CHX_GwcNPtOmdBkGy0Y2Qs3uihZLXe9b/view?usp=sharing)  
+
