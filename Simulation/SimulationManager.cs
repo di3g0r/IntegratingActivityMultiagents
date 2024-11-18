@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using TMPro;
 
 public class SimulationManager : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class SimulationManager : MonoBehaviour
     public GameObject objectPrefab;
     public GameObject stackPrefab;
     public GameObject wallPrefab;
+    public TextMeshProUGUI messageText; // Reference to your TextMesh object
     
     [Header("Movement Configuration")]
     public float movementSpeed = 2f;
@@ -29,11 +31,17 @@ public class SimulationManager : MonoBehaviour
     private Dictionary<int, GameObject> robotObjects = new Dictionary<int, GameObject>();
     private GameObject[,] gridObjects;
     private Dictionary<Vector2Int, List<GameObject>> stackObjects = new Dictionary<Vector2Int, List<GameObject>>();
+    private Dictionary<int, bool> robotObjectDetectionStatus = new Dictionary<int, bool>();
 
     void Start()
     {
         Debug.Log("Starting simulation...");
         gridObjects = new GameObject[width, height];
+        // Initialize the message text to be invisible
+        if (messageText != null)
+        {
+            messageText.gameObject.SetActive(false);
+        }
         StartCoroutine(InitializeSimulation());
     }
 
@@ -199,12 +207,21 @@ public class SimulationManager : MonoBehaviour
             {
                 robotObj = Instantiate(robotPrefab, position, rotation);
                 robotObjects[robot.id] = robotObj;
+                robotObjectDetectionStatus[robot.id] = false;
             }
             else
             {
                 robotObj.transform.position = position;
                 robotObj.transform.rotation = rotation;
             }
+
+            // Check if robot has just picked up an object
+            bool wasCarryingObject = robotObjectDetectionStatus.ContainsKey(robot.id) && robotObjectDetectionStatus[robot.id];
+            if (!wasCarryingObject && robot.carrying_object)
+            {
+                ShowTemporaryMessage($"Robot {robot.id} found a box!");
+            }
+            robotObjectDetectionStatus[robot.id] = robot.carrying_object;
 
             // Update robot appearance
             Renderer renderer = robotObj.GetComponent<Renderer>();
@@ -233,6 +250,24 @@ public class SimulationManager : MonoBehaviour
                 stackObjects[stackPos].Add(stackObj);
             }
         }
+    }
+
+    private void ShowTemporaryMessage(string message)
+    {
+        if (messageText != null)
+        {
+            StartCoroutine(ShowMessageCoroutine(message));
+        }
+    }
+
+    private IEnumerator ShowMessageCoroutine(string message)
+    {
+        messageText.gameObject.SetActive(true);
+        messageText.text = message;
+        
+        yield return new WaitForSeconds(3f); // Wait for 3 seconds
+        
+        messageText.gameObject.SetActive(false);
     }
 
     private Quaternion GetRotationFromDirection(string direction)
